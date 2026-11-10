@@ -1,0 +1,26 @@
+name: camarita
+
+services:
+  camarita:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GO2RTC_VERSION: ${GO2RTC_VERSION:-1.9.15}
+    image: camarita:${CAMARITA_TAG:-latest}
+    container_name: camarita
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # Interfaz web + API/WebSocket de go2rtc.
+      - "${CAMARITA_PORT:-18080}:1984"
+      # Solo se usan si activas WebRTC en CAMARITA_PLAYER_MODE.
+      - "${CAMARITA_WEBRTC_PORT:-8555}:8555/tcp"
+      - "${CAMARITA_WEBRTC_PORT:-8555}:8555/udp"
+    stop_grace_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

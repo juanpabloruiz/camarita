@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.gitattributes
+README.md
+THIRD_PARTY_NOTICES.md
+compose.yaml
+Dockerfile
+.dockerignore
+node_modules
+*.log

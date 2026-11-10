@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#070b12">
+    <meta name="color-scheme" content="dark">
+    <title>Camarita</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/bootstrap.min.css?v=1.1.1">
+    <link rel="stylesheet" href="css/app.css?v=1.1.2">
+    <script defer src="js/bootstrap.bundle.min.js?v=1.1.1"></script>
+</head>
+<body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+
+    <div class="app">
+        <!-- Cabecera en el flujo normal del documento: NO es fija ni sticky.
+             Al hacer scroll, sube y desaparece como cualquier contenido. -->
+        <header class="topbar">
+            <div class="brand">
+                <span class="logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h7A2.5 2.5 0 0 1 16 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 15.5z"/>
+                        <path d="m16 10 4-2.2v8.4L16 14"/>
+                        <circle cx="10" cy="12" r="2.5"/>
+                    </svg>
+                </span>
+                <div class="brand-copy">
+                    <h1 id="app-title">Camarita</h1>
+                    <p id="app-subtitle">Cámaras IP en directo · sin conversión</p>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <span class="net-pill" id="net-pill" title="Ancho de banda estimado hasta el navegador">
+                    <span class="net-dot"></span>
+                    <span id="net-text">Midiendo…</span>
+                </span>
+
+                <div class="btn-group btn-group-sm" id="quality-control" role="group" aria-label="Calidad de vídeo">
+                    <button type="button" data-quality="auto" class="btn btn-outline-secondary active">Auto</button>
+                    <button type="button" data-quality="hd" class="btn btn-outline-secondary">HD</button>
+                    <button type="button" data-quality="sd" class="btn btn-outline-secondary">SD</button>
+                </div>
+
+                <button type="button" id="reconnect-all" class="btn btn-outline-secondary icon-btn" title="Reconectar todas las cámaras" aria-label="Reconectar todas las cámaras">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 11a8 8 0 1 0-2.3 5.7"/>
+                        <path d="M20 4v7h-7"/>
+                    </svg>
+                </button>
+
+                <button type="button" id="open-settings" class="btn btn-outline-secondary icon-btn" title="Ajustes" aria-label="Abrir ajustes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 0 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.15.36.37.7.6 1 .3.3.68.45 1.1.4H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51.6z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <div id="notice" class="alert alert-warning border-0" hidden></div>
+
+            <section id="grid" class="row g-3" aria-label="Cámaras"></section>
+
+            <section id="empty-state" class="empty-state text-center d-flex flex-column align-items-center justify-content-center py-5" hidden>
+                <span class="empty-icon mb-4" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h7A2.5 2.5 0 0 1 16 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 15.5z"/>
+                        <path d="m16 10 4-2.2v8.4L16 14"/>
+                        <path d="M8 3.5h8"/>
+                    </svg>
+                </span>
+                <h2 class="fs-4 mb-1">No hay cámaras configuradas</h2>
+                <p class="text-body-secondary mb-2">Copia <code>.env.example</code> a <code>.env</code>, añade tus cámaras y reinicia el contenedor.</p>
+                <pre class="empty-code text-start mt-3 border rounded-3 p-3">cp .env.example .env
+# edita .env y luego:
+docker compose up -d --build</pre>
+                <p class="small text-body-secondary mt-3 mb-0">La configuración se genera al arrancar, así que no hace falta reconstruir la imagen para cambiar de cámara.</p>
+            </section>
+        </main>
+
+        <footer class="d-flex justify-content-center align-items-center flex-wrap gap-2 border-top py-3 text-body-secondary small">
+            <span id="footer-summary">Cargando…</span>
+            <span class="opacity-50">·</span>
+            <span>RTSP original → <span id="footer-protocol">MSE/HLS</span> · sin recodificar</span>
+        </footer>
+    </div>
+
+    <template id="tile-template">
+        <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+            <article class="tile" data-status="idle">
+                <div class="video-shell">
+                    <!-- El elemento <camarita-player> lo crea app.js con la
+                         configuración adecuada; si estuviera aquí, la plantilla
+                         generaría un segundo player sin configurar. -->
+
+                    <div class="skeleton" aria-hidden="true">
+                        <span class="spinner"></span>
+                        <span>Conectando…</span>
+                    </div>
+
+                    <div class="error-overlay" hidden>
+                        <span class="error-icon" aria-hidden="true">!</span>
+                        <strong>No se pudo abrir la cámara</strong>
+                        <p class="error-message"></p>
+                        <button type="button" class="btn btn-sm btn-outline-light" data-action="retry">Reintentar</button>
+                    </div>
+
+                    <div class="paused-overlay" aria-hidden="true">
+                        <span>En pausa</span>
+                        <small class="text-body-secondary">La cámara vuelve al entrar en pantalla</small>
+                    </div>
+
+                    <div class="tile-top">
+                        <span class="badge rounded-pill live-badge">
+                            <i></i>
+                            <span class="state-label">EN VIVO</span>
+                        </span>
+                        <span class="badge rounded-pill quality-badge" title="Calidad actual">HD</span>
+                    </div>
+
+                    <div class="tile-bottom">
+                        <div class="tile-title"></div>
+                        <div class="tile-meta">
+                            <span class="meta-brand"></span>
+                            <span class="meta-sep">·</span>
+                            <span class="meta-tech">—</span>
+                            <span class="meta-sep">·</span>
+                            <span class="meta-resolution">—</span>
+                        </div>
+                    </div>
+
+                    <div class="tile-actions">
+                        <button type="button" class="btn btn-outline-light icon-btn tile-btn" data-action="mute" data-muted="true" title="Activar sonido" aria-label="Activar sonido">
+                            <svg class="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 5 6.5 9H3v6h3.5L11 19z"/>
+                                <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+                                <path d="M18.2 6a8.5 8.5 0 0 1 0 12"/>
+                            </svg>
+                            <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 5 6.5 9H3v6h3.5L11 19z"/>
+                                <path d="m16 9 5 5"/>
+                                <path d="m21 9-5 5"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="btn btn-outline-light icon-btn tile-btn" data-action="reconnect" title="Reconectar" aria-label="Reconectar cámara">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 11a8 8 0 1 0-2.3 5.7"/>
+                                <path d="M20 4v7h-7"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="btn btn-outline-light icon-btn tile-btn" data-action="fullscreen" title="Pantalla completa" aria-label="Pantalla completa">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                                <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+                                <path d="M8 21H5a2 2 0 0 1-2-2v-3"/>
+                                <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </template>
+
+    <div class="modal fade" id="settings-dialog" tabindex="-1" aria-labelledby="settings-title">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="me-auto">
+                        <h2 class="modal-title fs-5 mb-0" id="settings-title">Ajustes</h2>
+                        <p class="text-body-secondary small mb-0">Reproducción y diagnóstico</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="list-group list-group-flush rounded-3 border">
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 py-2">
+                            <span class="text-body-secondary">Ancho de banda</span>
+                            <strong id="settings-bandwidth" class="text-end">—</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 py-2">
+                            <span class="text-body-secondary">Calidad</span>
+                            <strong id="settings-quality" class="text-end">—</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 py-2">
+                            <span class="text-body-secondary">Player</span>
+                            <strong id="settings-player" class="text-end">—</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 py-2">
+                            <span class="text-body-secondary">Cámaras</span>
+                            <strong id="settings-cameras" class="text-end">—</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 py-2">
+                            <span class="text-body-secondary">Autenticación</span>
+                            <strong id="settings-auth" class="text-end">—</strong>
+                        </div>
+                    </div>
+
+                    <p class="text-body-secondary small mt-3 mb-0">La calidad automática alterna entre el stream principal y el substream de cada cámara según el ancho de banda medido y los cortes detectados. El vídeo no se recodifica.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="measure-now" class="btn btn-outline-secondary">Medir ahora</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+
+                <p class="small font-monospace text-body-secondary text-end px-3 pb-3 mb-0" id="settings-generated"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toasts" class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="false"></div>
+
+    <noscript>
+        <div class="noscript">Camarita necesita JavaScript para reproducir las cámaras.</div>
+    </noscript>
+
+    <script type="module" src="js/app.js?v=1.1.1"></script>
+</body>
+</html>
